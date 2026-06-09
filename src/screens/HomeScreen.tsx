@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
@@ -28,6 +28,27 @@ export default function HomeScreen() {
     }
   };
 
+  const confirmarRemocao = (id: string, nome: string) => {
+    Alert.alert(
+      'Remover Fazenda',
+      `Tem certeza que deseja remover a ${nome}?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Remover', style: 'destructive', onPress: () => removerFazenda(id) }
+      ]
+    );
+  };
+
+  const removerFazenda = async (id: string) => {
+    try {
+      const novasFazendas = fazendas.filter(fazenda => fazenda.id !== id);
+      setFazendas(novasFazendas);
+      await AsyncStorage.setItem('@fazendas_salvas', JSON.stringify(novasFazendas));
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível remover a fazenda.');
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       carregarFazendas();
@@ -35,18 +56,28 @@ export default function HomeScreen() {
   );
 
   const renderItem = ({ item }: { item: Fazenda }) => (
-    <TouchableOpacity 
-      style={styles.card}
-      onPress={() => navigation.navigate('Detalhes', { fazenda: item })}
-    >
+    <View style={styles.card}>
       <Text style={styles.cardTitle}>{item.nome}</Text>
       <Text style={styles.cardText}>
         Lat: {item.latitude} | Lon: {item.longitude}
       </Text>
-      <Text style={styles.cardLink}>
-        Ver Monitoramento ➔
-      </Text>
-    </TouchableOpacity>
+      
+      <View style={styles.cardActions}>
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={() => confirmarRemocao(item.id, item.nome)}
+        >
+          <Text style={styles.deleteButtonText}>Remover 🗑️</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.linkButton}
+          onPress={() => navigation.navigate('Detalhes', { fazenda: item })}
+        >
+          <Text style={styles.cardLink}>Ver Monitoramento ➔</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 
   return (
@@ -139,12 +170,30 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginTop: 4,
   },
+  cardActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f3f4f6',
+    paddingTop: 8,
+  },
+  deleteButton: {
+    paddingVertical: 6,
+  },
+  deleteButtonText: {
+    color: '#dc2626',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  linkButton: {
+    paddingVertical: 6,
+  },
   cardLink: {
     color: '#2563eb',
     fontSize: 14,
     fontWeight: '600',
-    marginTop: 8,
-    textAlign: 'right',
   },
   fab: {
     backgroundColor: '#15803d',

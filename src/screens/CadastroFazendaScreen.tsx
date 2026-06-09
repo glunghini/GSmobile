@@ -36,6 +36,12 @@ export default function CadastroFazendaScreen() {
     }
   };
 
+  const preencherDadosTeste = () => {
+    setNomeFazenda('Fazenda Seca (Atacama)');
+    setLatitude('-23.8634');
+    setLongitude('-69.1328');
+  };
+
   const salvarFazenda = async () => {
     if (!nomeFazenda || !latitude || !longitude) {
       Alert.alert('Erro', 'Preencha todos os campos ou capture a localização.');
@@ -105,6 +111,13 @@ export default function CadastroFazendaScreen() {
         )}
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.testButton}
+        onPress={preencherDadosTeste}
+      >
+        <Text style={styles.testButtonText}>⚠️ Preencher Dados Críticos (Teste)</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.saveButton} onPress={salvarFazenda}>
         <Text style={styles.saveButtonText}>Salvar Fazenda</Text>
       </TouchableOpacity>
@@ -148,9 +161,21 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   gpsButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  testButton: {
+    backgroundColor: '#f59e0b',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  testButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
